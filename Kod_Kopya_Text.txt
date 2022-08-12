@@ -1,0 +1,2369 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using MySql.Data.MySqlClient;
+
+namespace Prolab2_3
+{
+    public partial class Giris : Form
+    {
+        public Giris()
+        {
+            InitializeComponent();
+        
+        }
+
+        private void Giris_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (System.Text.RegularExpressions.Regex.IsMatch(txtGiris.Text, "  ^ [0-9]"))
+            {
+                txtGiris.Text = "";
+            }
+        }
+
+        public static MySqlConnection baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+
+        public static void veritabani_baglantisi()
+        {
+            try 
+            {
+                baglanti.Open();
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(err.Message); 
+            }
+        }
+
+        bool giris_dogrulama_musteri(string id, string sifre) 
+        {
+            veritabani_baglantisi(); 
+            MySqlCommand cmd = new MySqlCommand(); 
+         
+            cmd.CommandText = "SELECT * FROM musteri WHERE ID=@id AND SIFRE=@sifre"; 
+            cmd.Parameters.AddWithValue("@id", id); 
+            cmd.Parameters.AddWithValue("@sifre", sifre); 
+            cmd.Connection = baglanti; 
+            MySqlDataReader login = cmd.ExecuteReader(); 
+            if (login.Read()) 
+            {
+                baglanti.Close();
+                return true; 
+            }
+            else
+            {
+                baglanti.Close();
+                return false;
+            }
+        }
+
+        bool giris_dogrulama_temsilci(string id, string sifre) 
+        {
+            veritabani_baglantisi(); 
+            MySqlCommand cmd = new MySqlCommand(); 
+        
+            cmd.CommandText = "SELECT * FROM musteri_temsilcisi WHERE ID=@id AND SIFRE=@sifre"; 
+            cmd.Parameters.AddWithValue("@id", id); 
+            cmd.Parameters.AddWithValue("@sifre", sifre); 
+            cmd.Connection = baglanti; 
+            MySqlDataReader login = cmd.ExecuteReader();
+            if (login.Read()) 
+            {
+                baglanti.Close();
+                return true; 
+            }
+            else
+            {
+                baglanti.Close();
+                return false; 
+            }
+        }
+
+        bool giris_dogrulama_mudur(string id, string sifre) 
+        {
+            veritabani_baglantisi(); 
+            MySqlCommand cmd = new MySqlCommand(); 
+            
+            cmd.CommandText = "SELECT * FROM mudur WHERE ID=@id AND SIFRE=@sifre"; 
+            cmd.Parameters.AddWithValue("@id", id); 
+            cmd.Parameters.AddWithValue("@sifre", sifre); 
+            cmd.Connection = baglanti; 
+            MySqlDataReader login = cmd.ExecuteReader();
+            if (login.Read()) 
+            {
+                baglanti.Close();
+                return true; 
+            }
+            else
+            {
+                baglanti.Close();
+                return false; 
+            }
+        }
+
+
+
+        private void giris_buton_Click(object sender, EventArgs e)
+        {
+            string id = txtGiris.Text; 
+            string sifre = txtSifre.Text;
+
+            if (id == "" || sifre == "") 
+            {
+                MessageBox.Show("Lütfen tüm alanları doldurun");
+                return;
+            }
+            else
+            {
+                bool a;
+
+                if (musteri_button.Checked)
+                {
+                    a = giris_dogrulama_musteri(id, sifre);
+                    if (a) 
+                    {
+                      new musteri(id).Show();
+                      this.Hide();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Hatalı Kullanıcı Adı veya Şifre!");
+                    }
+                 
+                }
+                else if (temsilci_button.Checked)
+                {
+                    a = giris_dogrulama_temsilci(id, sifre);
+                    if (a)
+                    {
+                        new musteri_temsilcisi(id).Show();
+                        this.Hide();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Hatalı Kullanıcı Adı veya Şifre!");
+
+                    }
+                }
+                else if (mudur_button.Checked)
+                {
+                    a = giris_dogrulama_mudur(id, sifre);
+                    if (a)
+                    {
+                        new mudur(id).Show();
+                        this.Hide();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Hatalı Kullanıcı Adı veya Şifre!");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Lütfen yukarıdan giriş yönteminizi seçin", "Hata Mesajı", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+          
+
+        private void sifre_goster_CheckedChanged(object sender, EventArgs e)
+        {
+            if (sifre_goster.Checked)
+            {
+                txtSifre.PasswordChar = '\0';
+            }
+            else
+            {
+                txtSifre.PasswordChar = '*';
+            }
+                
+        }
+
+        private void Kayit_buton_Click(object sender, EventArgs e)
+        {
+            new Kayit().Show();
+            
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBox2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void guna2Button3_Click(object sender, EventArgs e)
+        {
+            giris_no.Text = "Giriş No:";
+            panel2.Visible = true;
+            this.ClientSize = new Size(410, 500);
+
+        }
+
+        private void guna2Button2_Click(object sender, EventArgs e)
+        {
+            giris_no.Text = "Musteri No:";
+            panel2.Visible = true;
+            this.ClientSize = new Size(410, 500);
+        }
+
+        private void mudur_button_Click(object sender, EventArgs e)
+        {
+            giris_no.Text = "Giriş No:";
+            panel2.Visible = true;
+            this.ClientSize = new Size(410, 500);
+
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            if (System.Text.RegularExpressions.Regex.IsMatch(txtSifre.Text, "  ^ [0-9]"))
+            {
+                txtSifre.Text = "";
+            }
+        }
+
+        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) &&
+            (e.KeyChar != '.'))
+            {
+                e.Handled = true;
+            }
+            if ((e.KeyChar == '.'))
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void textBox2_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) &&
+            (e.KeyChar != '.'))
+            {
+                e.Handled = true;
+            }
+            if ((e.KeyChar == '.'))
+            {
+              
+            }
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void Giris_Click(object sender, EventArgs e)
+        {
+      
+        }
+
+        private void panel2_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void Giris_Shown(object sender, EventArgs e)
+        {
+            txtGiris.Focus();
+        }
+
+        private void Giris_Leave(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void Giris_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Application.Exit();
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using MySql.Data.MySqlClient;
+
+namespace Prolab2_3
+{
+    public partial class musteri_temsilcisi : Form
+    {
+        MySqlConnection baglanti;
+        MySqlCommand komut;
+        MySqlDataAdapter da;
+        public musteri_temsilcisi()
+        {
+            InitializeComponent();
+        }
+
+        public musteri_temsilcisi(string id)
+        {
+            InitializeComponent();
+        }
+
+
+        private void musteri_bilgi_Click(object sender, EventArgs e)
+        {
+            panel3.Height = musteri_bilgi.Height;
+            panel3.Top = musteri_bilgi.Top;
+            musteri_panel.Visible = true;
+            talep_panel.Visible = false;
+            hesap_panel.Visible = false;
+            MusteriGetir();
+        }
+
+        private void talepler_Click(object sender, EventArgs e)
+        {
+            panel3.Height = talepler.Height;
+            panel3.Top = talepler.Top;
+            talep_panel.Visible = true;
+            musteri_panel.Visible = false;
+            hesap_panel.Visible = false;
+
+            TalepGetir();
+
+        }
+
+        private void guna2Button1_Click(object sender, EventArgs e)
+        {
+            new Giris().Show();
+            this.Hide();
+        }
+
+        private void musteri_temsilcisi_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Application.Exit();
+
+        }
+
+        void MusteriGetir()
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            da = new MySqlDataAdapter("SELECT * FROM bank.musteri", baglanti);
+            DataTable tablo = new DataTable();
+            da.Fill(tablo);
+            dataGridView1.DataSource = tablo;
+            baglanti.Close();
+
+        }
+
+        void TalepGetir()
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            da = new MySqlDataAdapter("SELECT * FROM bank.talepler WHERE TALEP_DURUM='beklemede';", baglanti);
+     
+            DataTable tablo = new DataTable();
+            da.Fill(tablo);
+            dataGridView2.DataSource = tablo;
+            baglanti.Close();
+
+        }
+
+        void HesapGetir()
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            da = new MySqlDataAdapter("SELECT * FROM bank.hesap", baglanti);
+            DataTable tablo = new DataTable();
+            da.Fill(tablo);
+            dataGridView3.DataSource = tablo;
+            baglanti.Close();
+
+        }
+
+        private void musteri_temsilcisi_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dataGridView1_CellEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            txtmusteri_no.Text = dataGridView1.CurrentRow.Cells[0].Value.ToString();
+            txtmusteri_ad.Text = dataGridView1.CurrentRow.Cells[1].Value.ToString();
+            txtmusteri_soyad.Text = dataGridView1.CurrentRow.Cells[2].Value.ToString();
+            txtmusteri_sifre.Text = dataGridView1.CurrentRow.Cells[3].Value.ToString();
+            txtmusteri_tel.Text = dataGridView1.CurrentRow.Cells[4].Value.ToString();
+            txtmusteri_tc.Text = dataGridView1.CurrentRow.Cells[5].Value.ToString();
+            txtmusteri_adres.Text = dataGridView1.CurrentRow.Cells[6].Value.ToString();
+            txtmusteri_eposta.Text = dataGridView1.CurrentRow.Cells[7].Value.ToString();
+        }
+
+        private void musteri_ekle_button_Click(object sender, EventArgs e)
+        {
+            new Kayit().ShowDialog();
+            MusteriGetir();
+        }
+
+      
+        private void musteri_guncelle_button_Click(object sender, EventArgs e)
+        {
+            string sorgu = "UPDATE bank.musteri SET AD=@ad,SOYAD=@soyad,SIFRE=@sifre,TELEFON=@telefon,TC=@tc,EPOSTA=@eposta,ADRES=@adres,EPOSTA=@eposta WHERE ID=@id";
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@id", Convert.ToInt32(txtmusteri_no.Text));
+            komut.Parameters.AddWithValue("@ad", txtmusteri_ad.Text);
+            komut.Parameters.AddWithValue("@soyad", txtmusteri_soyad.Text);
+            komut.Parameters.AddWithValue("@tc", Convert.ToInt64(txtmusteri_tc.Text));
+            komut.Parameters.AddWithValue("@sifre", Convert.ToInt64(txtmusteri_sifre.Text));
+            komut.Parameters.AddWithValue("@eposta", txtmusteri_eposta.Text);
+            komut.Parameters.AddWithValue("@adres", txtmusteri_adres.Text);
+            komut.Parameters.AddWithValue("@telefon", Convert.ToInt64(txtmusteri_tel.Text));
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            MusteriGetir();
+            MessageBox.Show("Başarıyla Güncellendi");
+            MusteriGetir();
+        }
+
+
+        private void telefon_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        public string Kredi { get; set; }
+        public string AlanHesap { get; set; }
+        public string IslemMiktari { get; set; }
+        public string Bakiye { get; set; }
+        public string MusteriID { get; set; }
+        public string Faiz { get; set; }
+
+
+        void bakiye(int hesap_no)
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT * FROM bank.hesap WHERE HESAP_NO = '" + hesap_no + "'", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+                Bakiye = oku["BAKIYE"].ToString();
+            }
+            oku.Close();
+            baglanti.Close();
+        }
+
+        void kredi(int hesap_no)
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT * FROM bank.hesap WHERE HESAP_NO = '" + hesap_no + "'", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+                Kredi = oku["KREDI"].ToString();
+            }
+            oku.Close();
+            baglanti.Close();
+
+        }
+
+        void talep_bilgi()
+        {
+            int Talep_no = Convert.ToInt32(talep_no.Text);
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT * FROM bank.talepler WHERE TALEP_ID = '" + Talep_no  + "'", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+                MusteriID = oku["GONDEREN_HESAP_NO"].ToString();
+                AlanHesap = oku["ALAN_HESAP_NO"].ToString();
+                IslemMiktari = oku["ISLEM_MIKTARI"].ToString();
+            }
+            oku.Close();
+            baglanti.Close();
+
+        }
+
+        void faiz()
+        {
+          
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT BANKA_FAIZ FROM bank.banka_para WHERE banka_id =1", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+                Faiz = oku["BANKA_FAIZ"].ToString();
+        
+            }
+            oku.Close();
+            baglanti.Close();
+        }
+
+      
+        private void talep_onay_Click(object sender, EventArgs e)
+        {
+            string durum = "onaylandi";
+            string sorgu = "UPDATE bank.talepler SET TALEP_DURUM=@durum WHERE TALEP_ID=@id";
+
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@id", Convert.ToInt32(talep_no.Text));
+            komut.Parameters.AddWithValue("@durum",durum);
+
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+
+            talep_bilgi();
+            
+
+            if(talep_tur.Text=="kredi basvurusu")
+            {
+                double _islem_miktari = Convert.ToDouble(IslemMiktari);
+
+                faiz();
+                double _faiz = Convert.ToDouble(Faiz);
+
+
+                kredi(Convert.ToInt32(talep_hesap_no.Text));
+                double _kredi = Convert.ToInt32(Kredi);
+                
+                bakiye(Convert.ToInt32(talep_hesap_no.Text));
+                double bakiyeKredi = Convert.ToDouble(Bakiye);
+              
+                sorgu = "UPDATE bank.hesap SET KREDI=@kredi , BAKIYE=@bakiye WHERE HESAP_NO=@hesap";
+                komut = new MySqlCommand(sorgu, baglanti);
+                komut.Parameters.AddWithValue("@hesap", Convert.ToInt32(talep_hesap_no.Text));
+                komut.Parameters.AddWithValue("@kredi", (_islem_miktari*((_faiz+100)/100)) +_kredi);
+                komut.Parameters.AddWithValue("@bakiye",_islem_miktari + bakiyeKredi);
+              
+                baglanti.Open();
+                komut.ExecuteNonQuery();
+                baglanti.Close();
+            }
+            else if (talep_tur.Text == "havale")
+            {
+                int gonderen_hesap = Convert.ToInt32(talep_hesap_no.Text);
+
+                int alan_hesap = Convert.ToInt32(AlanHesap);
+
+                bakiye(gonderen_hesap);
+                double gonderen_hesap_bakiye=Convert.ToDouble(Bakiye);
+                bakiye(alan_hesap);
+                double alan_hesap_bakiye = Convert.ToDouble(Bakiye);
+
+                int islem_miktari = Convert.ToInt32(IslemMiktari);
+
+
+                 sorgu = "UPDATE bank.hesap SET BAKIYE=@bakiye WHERE HESAP_NO=@GonderenHesap";
+                komut = new MySqlCommand(sorgu, baglanti);
+                komut.Parameters.AddWithValue("@GonderenHesap", gonderen_hesap);
+                komut.Parameters.AddWithValue("@bakiye", gonderen_hesap_bakiye - islem_miktari);
+                baglanti.Open();
+                komut.ExecuteNonQuery();
+                baglanti.Close();
+
+                 sorgu = "UPDATE bank.hesap SET BAKIYE=@bakiye WHERE HESAP_NO=@AlanHesap";
+                komut = new MySqlCommand(sorgu, baglanti);
+                komut.Parameters.AddWithValue("@AlanHesap", alan_hesap);
+                komut.Parameters.AddWithValue("@bakiye", alan_hesap_bakiye + islem_miktari);
+                baglanti.Open();
+                komut.ExecuteNonQuery();
+                baglanti.Close();
+            }
+            else if (talep_tur.Text == "hesap acma")
+            {
+                int musteri_id = Convert.ToInt32(MusteriID);
+                try
+                {
+                    MySqlConnection baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+
+                    string Query = "insert into bank.hesap(MUSTERI_ID,BAKIYE,KREDI) values("+musteri_id+",0,0);";
+
+                    
+                    MySqlCommand MyCommand2 = new MySqlCommand(Query, baglanti);
+                    MySqlDataReader MyReader2;
+                    baglanti.Open();
+                    MyReader2 = MyCommand2.ExecuteReader();     
+                    while (MyReader2.Read())
+                    {
+                    }
+                    baglanti.Close();
+               
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+            TalepGetir();
+            MessageBox.Show("Başarıyla Onaylandı.");
+        }
+
+        private void dataGridView2_CellEnter_1(object sender, DataGridViewCellEventArgs e)
+        {
+            talep_no.Text = dataGridView2.CurrentRow.Cells[0].Value.ToString();
+            talep_tur.Text = dataGridView2.CurrentRow.Cells[1].Value.ToString();
+            talep_hesap_no.Text = dataGridView2.CurrentRow.Cells[3].Value.ToString();
+        }
+
+        private void talep_ret_Click(object sender, EventArgs e)
+        {
+            string durum = "reddedildi";
+            string sorgu = "UPDATE bank.talepler SET TALEP_DURUM=@durum WHERE TALEP_ID=@id";
+            MySqlConnection baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@id", Convert.ToInt32(talep_no.Text));
+            komut.Parameters.AddWithValue("@durum", durum);
+
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            TalepGetir();
+            MessageBox.Show("Reddedildi.");
+        }
+
+        private void dataGridView3_CellEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            hesap_musteri_no.Text = dataGridView3.CurrentRow.Cells[0].Value.ToString();
+            hesap_no.Text = dataGridView3.CurrentRow.Cells[1].Value.ToString();
+            hesap_bakiye.Text = dataGridView3.CurrentRow.Cells[2].Value.ToString();
+            hesap_kredi.Text = dataGridView3.CurrentRow.Cells[3].Value.ToString();
+        }
+
+        private void dataGridView3_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void hesap_button_Click_1(object sender, EventArgs e)
+        {
+            panel3.Height = hesap_button.Height;
+            panel3.Top = hesap_button.Top;
+            talep_panel.Visible = false;
+            musteri_panel.Visible = false;
+            hesap_panel.Visible = true;
+
+            HesapGetir();
+        }
+
+
+        private void hesap_sil_button_Click(object sender, EventArgs e)
+        {
+            bakiye(Convert.ToInt32(hesap_no.Text));
+
+
+            if (Bakiye == "0")
+            {
+                MySqlConnection baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+                baglanti.Open();
+                string sorgu = "DELETE FROM bank.hesap WHERE HESAP_NO = @id";
+                komut = new MySqlCommand(sorgu, baglanti);
+                komut.Parameters.AddWithValue("@id", Convert.ToInt32(hesap_no.Text));
+                
+                komut.ExecuteNonQuery();
+                baglanti.Close();
+                HesapGetir();
+            }
+            else
+                MessageBox.Show("Hesabın Bakiyesi Sıfır Olmadan" + "\n" + "Hesap Silinemez");
+
+
+           
+        }
+    }
+}
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using MySql.Data.MySqlClient;
+
+
+namespace Prolab2_3
+{   
+   
+    public partial class musteri : Form
+    {
+        MySqlConnection baglanti;
+        MySqlCommand komut;
+        MySqlDataAdapter da;
+        public musteri()
+        {
+            InitializeComponent();
+        }
+        public musteri(string value)
+        {  
+            Value = value;
+            InitializeComponent();
+           
+        }
+
+        void MusteriGetir()
+        {
+            int id = Convert.ToInt32(Value);
+            
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT * FROM bank.musteri WHERE ID = '" + id + "'", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+
+                txtmusteri_no.Text = oku["ID"].ToString();
+                txtmusteri_ad.Text = oku["AD"].ToString();
+                txtmusteri_soyad.Text = oku["SOYAD"].ToString();
+                txtmusteri_tc.Text = oku["TC"].ToString();
+                txtmusteri_sifre.Text = oku["SIFRE"].ToString();
+                txtmusteri_eposta.Text = oku["EPOSTA"].ToString();
+                txtmusteri_adres.Text = oku["ADRES"].ToString();
+                txtmusteri_tel.Text = oku["TELEFON"].ToString();
+                musteri_id= oku["ID"].ToString();
+
+            }
+            oku.Close();
+            baglanti.Close();
+
+        }
+
+        void HesapGetir()
+        {
+            int id = Convert.ToInt32(musteri_id);
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            da = new MySqlDataAdapter("SELECT * FROM bank.hesap WHERE MUSTERI_ID= '"+id+"'", baglanti);
+            DataTable tablo = new DataTable();
+            da.Fill(tablo);
+            dataGridView1.DataSource = tablo;
+            baglanti.Close();
+
+        }
+
+        void DovizHesapGetir()
+        {
+            int id = Convert.ToInt32(Value);
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            da = new MySqlDataAdapter("SELECT * FROM bank.doviz_hesap WHERE ID= '" + id + "'", baglanti);
+            DataTable tablo = new DataTable();
+            da.Fill(tablo);
+            dataGridView3.DataSource = tablo;
+            baglanti.Close();
+
+        }
+
+        void DovizGetir()
+        {
+            int id = Convert.ToInt32(musteri_id);
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            da = new MySqlDataAdapter("SELECT DOVIZ_ISIM,DOVIZ_ALIS,DOVIZ_SATIS FROM bank.doviz", baglanti);
+            DataTable tablo = new DataTable();
+            da.Fill(tablo);
+            dataGridView2.DataSource = tablo;
+            baglanti.Close();
+
+        }
+
+        void ToplamPara()
+        {
+            int id = Convert.ToInt32(musteri_id);
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT SUM(BAKIYE) AS toplam FROM bank.hesap WHERE MUSTERI_ID = '" + id + "'", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+                toplam_para_txt.Text= oku["toplam"].ToString();
+
+
+            }
+            oku.Close();
+            baglanti.Close();
+        }
+
+
+        public string Value { get; set; }
+        public string musteri_id { get; set; }
+
+
+        private void panel2_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            MusteriGetir();
+        }
+
+      
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+       
+
+
+   
+        private void Bilgi_Goruntule_Click(object sender, EventArgs e)
+        {
+            panel3.Height = Bilgi_Goruntule.Height;
+            panel3.Top = Bilgi_Goruntule.Top;
+            bilgi_panel.Visible = true;
+            para_islem_panel.Visible = false;
+            doviz_panel.Visible = false;
+            MusteriGetir();
+           
+
+
+        }
+
+        private void guna2Button1_Click(object sender, EventArgs e)
+        {
+            new Giris().Show();
+            this.Hide();
+        }           
+     
+
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Application.Exit();
+
+        }
+
+        
+
+        private void txtmusteri_no_TextChanged(object sender, EventArgs e)
+        {
+     
+        }
+
+        private void txtmusteri_ad_TextChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void txtmusteri_soyad_TextChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void txtmusteri_tc_TextChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void txtmusteri_eposta_TextChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void musteri_guncelle_Click(object sender, EventArgs e)
+        {
+            MySqlConnection baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+
+            string sorgu = "UPDATE bank.musteri SET AD=@ad,SOYAD=@soyad,SIFRE=@sifre,TELEFON=@telefon,TC=@tc,ADRES=@adres,EPOSTA=@eposta WHERE ID=@id";
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@id", Convert.ToInt32(txtmusteri_no.Text));
+            komut.Parameters.AddWithValue("@ad", txtmusteri_ad.Text);
+            komut.Parameters.AddWithValue("@soyad", txtmusteri_soyad.Text);
+            komut.Parameters.AddWithValue("@tc", Convert.ToInt64(txtmusteri_tc.Text));
+            komut.Parameters.AddWithValue("@sifre", Convert.ToInt64(txtmusteri_sifre.Text));
+            komut.Parameters.AddWithValue("@eposta", txtmusteri_eposta.Text);
+            komut.Parameters.AddWithValue("@adres", txtmusteri_adres.Text);
+            komut.Parameters.AddWithValue("@telefon", Convert.ToInt64(txtmusteri_tel.Text));
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            MusteriGetir();
+            MessageBox.Show("Başarıyla Güncellendi");
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void dataGridView1_CellEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            para_hesap_no.Text = dataGridView1.CurrentRow.Cells[1].Value.ToString();
+            para_bakiye.Text = dataGridView1.CurrentRow.Cells[2].Value.ToString();
+
+            doviz_hesap_no.Text = dataGridView1.CurrentRow.Cells[1].Value.ToString();
+            doviz_bky.Text = dataGridView1.CurrentRow.Cells[2].Value.ToString();
+
+        }
+
+        private void toplam_para_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void hesap_olustur_button_Click(object sender, EventArgs e)
+        {
+            int id = Convert.ToInt32(Value);
+            try
+            {
+                MySqlConnection baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+
+                string Query = "insert into bank.talepler(TALEP_TURU,GONDEREN_HESAP_NO,TALEP_DURUM) values('" + "hesap acma" + "','" + id + "','" + "beklemede" + "');";//,'" + id + "'
+
+                MySqlCommand MyCommand2 = new MySqlCommand(Query, baglanti);
+                MySqlDataReader MyReader2;
+                baglanti.Open();
+                MyReader2 = MyCommand2.ExecuteReader();  
+
+                while (MyReader2.Read())
+                {
+                }
+                baglanti.Close();
+                MessageBox.Show("Hesap Açma Talebiniz Gönderildi.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+
+        private void kredi_basvuru_button_Click(object sender, EventArgs e)
+        {
+            if(para_hesap_no.Text == "")
+            {
+                MessageBox.Show("Hesabınız Seçili Olmadığından İşlem Yapılamıyor");
+            }
+            else
+            {
+                 int hesap_no = Convert.ToInt32(para_hesap_no.Text);
+                new para_islem(5, hesap_no).ShowDialog();
+                HesapGetir();
+            }
+    
+        }
+
+        private void havale_button_Click(object sender, EventArgs e)
+        {
+            if (para_hesap_no.Text == "")
+            {
+                MessageBox.Show("Hesabınız Seçili Olmadığından İşlem Yapılamıyor");
+            }
+            else
+            {
+                int hesap_no = Convert.ToInt32(para_hesap_no.Text);
+                new para_islem(4,hesap_no).ShowDialog();
+                HesapGetir();
+            }
+
+                
+
+        }
+
+        private void para_yükle_button_Click(object sender, EventArgs e)
+        {
+            if (para_hesap_no.Text == "")
+            {
+                MessageBox.Show("Hesabınız Seçili Olmadığından İşlem Yapılamıyor");
+            }
+            else
+            {
+                int hesap_no = Convert.ToInt32(para_hesap_no.Text);
+                new para_islem(1,hesap_no).ShowDialog();
+                HesapGetir();
+            }
+              
+
+        }
+
+        private void para_cek_button_Click(object sender, EventArgs e)
+        {
+            if (para_hesap_no.Text == "")
+            {
+                MessageBox.Show("Hesabınız Seçili Olmadığından İşlem Yapılamıyor");
+            }
+            else
+            {
+                int hesap_no = Convert.ToInt32(para_hesap_no.Text);
+                new para_islem(2,hesap_no).ShowDialog();
+                HesapGetir();
+            }
+        }
+
+        private void kredi_ödeme_button_Click(object sender, EventArgs e)
+        {
+            if (para_hesap_no.Text == "")
+            {
+                MessageBox.Show("Hesabınız Seçili Olmadığından İşlem Yapılamıyor");
+            }
+            else
+            {
+               int hesap_no = Convert.ToInt32(para_hesap_no.Text);
+               new para_islem(3,hesap_no).ShowDialog();
+               HesapGetir();
+            }
+        }
+        public string Bakiye { get; set; }
+       
+        void bakiye()
+        {
+            int hesap_no = Convert.ToInt32(para_hesap_no.Text);
+
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT * FROM bank.hesap WHERE HESAP_NO = '" + hesap_no + "'", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+                Bakiye = oku["BAKIYE"].ToString();
+            }
+            oku.Close();
+            baglanti.Close();
+        }
+
+
+        private void hesap_sil_talep_Click_1(object sender, EventArgs e)
+        {
+            if (para_hesap_no.Text == "")
+            {
+                MessageBox.Show("Hesabınız Seçili Olmadığından İşlem Yapılamıyor");
+            }
+            else
+            {
+                bakiye();
+
+                if (Bakiye == "0")
+                {
+                    string sorgu = "DELETE FROM bank.hesap WHERE HESAP_NO = @id";
+                    komut = new MySqlCommand(sorgu, baglanti);
+                    komut.Parameters.AddWithValue("@id", Convert.ToInt32(para_hesap_no.Text));
+                    baglanti.Open();
+                    komut.ExecuteNonQuery();
+                    baglanti.Close();
+                    MessageBox.Show("Hesabınız başarıyla silinmiştir");
+
+                    HesapGetir();
+                }
+                else
+                    MessageBox.Show("Hesap Bakiyeniz Sıfır Olmadan" + "\n" + "Hesabınız Silinemez");
+                }
+        }
+
+        
+        private void doviz_islemleri_button_Click(object sender, EventArgs e)
+        {
+            panel3.Height = doviz_islemleri_button.Height;
+            panel3.Top = doviz_islemleri_button.Top;
+            para_islem_panel.Visible = true;
+            bilgi_panel.Visible = false;
+            doviz_panel.Visible = true;
+            HesapGetir();
+            DovizGetir();
+            DovizHesapGetir();
+
+        }
+
+
+      
+
+        private void dataGridView2_CellEnter_1(object sender, DataGridViewCellEventArgs e)
+        {
+            doviz_isim.Text = dataGridView2.CurrentRow.Cells[0].Value.ToString();
+            doviz_alis.Text = dataGridView2.CurrentRow.Cells[1].Value.ToString();
+            doviz_satis.Text = dataGridView2.CurrentRow.Cells[2].Value.ToString();
+        }
+
+        public string Doviz_istenen { get; set; }
+
+        void dovizMikar(string istenen)
+        {
+            int id = Convert.ToInt32(Value);
+
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT "+istenen+ " AS istenen FROM bank.doviz_hesap  WHERE ID = '" + id + "'", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+
+               Doviz_istenen = oku["istenen"].ToString();
+
+            }
+            oku.Close();
+            baglanti.Close();
+        }
+
+
+        private void doviz_button_Click_1(object sender, EventArgs e)
+        {
+            double alis = Convert.ToDouble(doviz_alis.Text);
+            double satis = Convert.ToDouble(doviz_satis.Text);
+
+            double alinacak_doviz = Convert.ToInt64(doviz_al_txt.Text)*satis;
+
+            double bakiye = Convert.ToDouble(doviz_bky.Text);
+
+            dovizMikar(doviz_isim.Text);
+
+            int doviz_bakiye = Convert.ToInt32(Doviz_istenen);
+
+            if (alinacak_doviz > bakiye)
+            {
+                MessageBox.Show("Bakiyeniz Yetersiz");
+            }
+            else
+            {
+                try
+                {
+                    MySqlConnection baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+                    string isim = doviz_isim.Text;
+
+                    string sorgu = "UPDATE bank.doviz_hesap SET "+isim+"=@miktar WHERE ID=@id;";
+                    komut = new MySqlCommand(sorgu, baglanti);
+
+                    komut.Parameters.AddWithValue("@id", Convert.ToInt32(Value));
+                    komut.Parameters.AddWithValue("@miktar", Convert.ToInt32(doviz_al_txt.Text)+ doviz_bakiye);
+                   
+                    baglanti.Open();
+                    komut.ExecuteNonQuery();
+                    baglanti.Close();
+
+                   
+                    sorgu = "UPDATE bank.hesap SET BAKIYE=@bakiye WHERE HESAP_NO=@hesap_no;";
+                    komut = new MySqlCommand(sorgu, baglanti);
+                    komut.Parameters.AddWithValue("@bakiye", bakiye-alinacak_doviz);
+                    komut.Parameters.AddWithValue("@hesap_no", Convert.ToInt32(doviz_hesap_no.Text));
+                    baglanti.Open();
+                    komut.ExecuteNonQuery();
+                    baglanti.Close();
+                    MessageBox.Show("Başarıyla İşlem Gerçekleşti");
+                    HesapGetir();
+                    DovizGetir();
+                    DovizHesapGetir();
+
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+
+            }
+       
+        }
+
+        private void doviz_sat_button_Click_1(object sender, EventArgs e)
+        {
+            double alis = Convert.ToDouble(doviz_alis.Text);
+            double satis = Convert.ToDouble(doviz_satis.Text);
+
+            double satilacak_doviz = Convert.ToInt64(doviz_sat_txt.Text) * alis;
+
+            double bakiye = Convert.ToDouble(doviz_bky.Text);
+
+            dovizMikar(doviz_isim.Text);
+
+            int doviz_bakiye = Convert.ToInt32(Doviz_istenen);
+
+            
+          
+                try
+                {
+                    MySqlConnection baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+                    string isim = doviz_isim.Text;
+
+                    string sorgu = "UPDATE bank.doviz_hesap SET " + isim + "=@miktar WHERE ID=@id;";
+                    komut = new MySqlCommand(sorgu, baglanti);
+
+                    komut.Parameters.AddWithValue("@id", Convert.ToInt32(Value));
+                    komut.Parameters.AddWithValue("@miktar",doviz_bakiye-Convert.ToInt32(doviz_sat_txt.Text));
+
+                    baglanti.Open();
+                    komut.ExecuteNonQuery();
+                    baglanti.Close();
+
+
+                    sorgu = "UPDATE bank.hesap SET BAKIYE=@bakiye WHERE HESAP_NO=@hesap_no;";
+                    komut = new MySqlCommand(sorgu, baglanti);
+                    komut.Parameters.AddWithValue("@bakiye",satilacak_doviz + bakiye );
+                    komut.Parameters.AddWithValue("@hesap_no", Convert.ToInt32(doviz_hesap_no.Text));
+                    baglanti.Open();
+                    komut.ExecuteNonQuery();
+                    baglanti.Close();
+                    MessageBox.Show("Başarıyla İşlem Gerçekleşti");
+                    HesapGetir();
+                    DovizGetir();
+                    DovizHesapGetir();
+
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+
+            
+        }
+
+
+        private void dataGridView3_CellEnter(object sender, DataGridViewCellEventArgs e)
+        {
+        }
+
+        private void para_islem_button_Click(object sender, EventArgs e)
+        {
+            panel3.Height = para_islem_button.Height;
+            panel3.Top = para_islem_button.Top;
+            para_islem_panel.Visible = true;
+            bilgi_panel.Visible = false;
+            doviz_panel.Visible = false;
+            para_no.Text = txtmusteri_no.Text;
+            para_ad.Text = txtmusteri_ad.Text;
+            para_soyad.Text = txtmusteri_soyad.Text;
+            HesapGetir();
+            ToplamPara();
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using MySql.Data.MySqlClient;
+
+
+namespace Prolab2_3
+{
+    public partial class mudur : Form
+    {
+        MySqlConnection baglanti;
+        MySqlCommand komut;
+        MySqlDataAdapter da;
+        public mudur()
+        {
+            InitializeComponent();
+        }
+
+        public mudur(string id)
+        {
+            InitializeComponent();
+            ID = id;
+        }
+
+        public string ID { get; set; }
+
+
+        private void guna2Button1_Click(object sender, EventArgs e)
+        {
+            new Giris().Show();
+            this.Hide();
+        }
+
+        private void mudur_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Application.Exit();
+
+        }
+
+        void MusteriGetir()
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            da = new MySqlDataAdapter("SELECT * FROM bank.musteri", baglanti);
+            DataTable tablo = new DataTable();
+            da.Fill(tablo);
+            dataGridView1.DataSource = tablo;
+            baglanti.Close();
+
+        }
+
+        void TemsilciGetir()
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            da = new MySqlDataAdapter("SELECT * FROM bank.musteri_temsilcisi", baglanti);
+            DataTable tablo = new DataTable();
+            da.Fill(tablo);
+            dataGridView2.DataSource = tablo;
+            baglanti.Close();
+
+        }
+
+        void TalepGetir()
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            da = new MySqlDataAdapter("SELECT * FROM bank.talepler", baglanti);
+            DataTable tablo = new DataTable();
+            da.Fill(tablo);
+            dataGridView4.DataSource = tablo;
+            baglanti.Close();
+
+        }
+
+        private void musteri_guncelle_button_Click(object sender, EventArgs e)
+        {
+            string sorgu = "UPDATE bank.musteri SET AD=@ad,SOYAD=@soyad,SIFRE=@sifre,TELEFON=@telefon,TC=@tc,ADRES=@adres,EPOSTA=@adres WHERE ID=@id";
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@id", Convert.ToInt32(txtmusteri_no.Text));
+            komut.Parameters.AddWithValue("@ad", txtmusteri_ad.Text);
+            komut.Parameters.AddWithValue("@soyad", txtmusteri_soyad.Text);
+            komut.Parameters.AddWithValue("@tc", Convert.ToInt64(txtmusteri_tc.Text));
+            komut.Parameters.AddWithValue("@sifre", Convert.ToInt64(txtmusteri_sifre.Text));
+            komut.Parameters.AddWithValue("@eposta", txtmusteri_eposta.Text);
+            komut.Parameters.AddWithValue("@adres", txtmusteri_adres.Text);
+            komut.Parameters.AddWithValue("@telefon", Convert.ToUInt64(txtmusteri_tel.Text));
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            MusteriGetir();
+            MessageBox.Show("Başarıyla Güncellendi");
+        }
+
+        private void musteri_ekle_button_Click(object sender, EventArgs e)
+        {
+            new Kayit().ShowDialog();
+            MusteriGetir();
+        }
+
+        private void müsteri_sil_button_Click(object sender, EventArgs e)
+        {
+            string sorgu = "DELETE FROM bank.musteri WHERE ID = @id";
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@id", Convert.ToInt32(txtmusteri_no.Text));
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            MusteriGetir();
+        }
+
+        private void musteri_bilgi_Click(object sender, EventArgs e)
+        {
+            panel3.Height = musteri_bilgi.Height;
+            panel3.Top = musteri_bilgi.Top;
+            musteri_panel.Visible = true;
+            temsilci_panel.Visible = false;
+            kullanici_bilgi_panel.Visible = false;
+            banka_bilgi_panel.Visible = false;
+            para_birimleri_panel.Visible = false;
+            talep_panel.Visible = false;
+
+
+            MusteriGetir();
+        }
+
+        private void mudur_Load(object sender, EventArgs e)
+        {
+          
+        }
+
+        private void musteri_ekle_button_Click_1(object sender, EventArgs e)
+        {
+            new Kayit().ShowDialog();
+            MusteriGetir();
+
+        }
+
+        private void temsilci_bilgi_button_Click(object sender, EventArgs e)
+        {
+            panel3.Height = temsilci_bilgi_button.Height;
+            panel3.Top = temsilci_bilgi_button.Top;
+            musteri_panel.Visible = false;
+            temsilci_panel.Visible = true;
+            kullanici_bilgi_panel.Visible = false;
+            banka_bilgi_panel.Visible = false;
+            para_birimleri_panel.Visible = false;
+            talep_panel.Visible = false;
+
+
+
+            TemsilciGetir();
+        }
+
+        private void dataGridView2_CellEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            temsilci_no.Text = dataGridView2.CurrentRow.Cells[0].Value.ToString();
+            temsilci_ad.Text = dataGridView2.CurrentRow.Cells[1].Value.ToString();
+            temsilci_soyad.Text = dataGridView2.CurrentRow.Cells[2].Value.ToString();
+            temsilci_sifre.Text = dataGridView2.CurrentRow.Cells[3].Value.ToString();
+            temsilci_tel.Text = dataGridView2.CurrentRow.Cells[4].Value.ToString();
+            temsilci_tc.Text = dataGridView2.CurrentRow.Cells[5].Value.ToString();
+            temsilci_eposta.Text = dataGridView2.CurrentRow.Cells[6].Value.ToString();
+            temsilci_adres.Text = dataGridView2.CurrentRow.Cells[7].Value.ToString();
+        }
+
+        private void dataGridView1_CellEnter_1(object sender, DataGridViewCellEventArgs e)
+        {
+            txtmusteri_no.Text = dataGridView1.CurrentRow.Cells[0].Value.ToString();
+            txtmusteri_ad.Text = dataGridView1.CurrentRow.Cells[1].Value.ToString();
+            txtmusteri_soyad.Text = dataGridView1.CurrentRow.Cells[2].Value.ToString();
+            txtmusteri_sifre.Text = dataGridView1.CurrentRow.Cells[3].Value.ToString();
+            txtmusteri_tel.Text = dataGridView1.CurrentRow.Cells[4].Value.ToString();
+            txtmusteri_tc.Text = dataGridView1.CurrentRow.Cells[5].Value.ToString();
+            txtmusteri_adres.Text = dataGridView1.CurrentRow.Cells[6].Value.ToString();
+            txtmusteri_eposta.Text = dataGridView1.CurrentRow.Cells[7].Value.ToString();
+        }
+
+        private void musteri_guncelle_button_Click_1(object sender, EventArgs e)
+        {
+            string sorgu = "UPDATE bank.musteri SET AD=@ad,SOYAD=@soyad,SIFRE=@sifre,TELEFON=@telefon,TC=@tc,ADRES=@adres,EPOSTA=@eposta WHERE ID=@id";
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@id", Convert.ToInt32(txtmusteri_no.Text));
+            komut.Parameters.AddWithValue("@ad", txtmusteri_ad.Text);
+            komut.Parameters.AddWithValue("@soyad", txtmusteri_soyad.Text);
+            komut.Parameters.AddWithValue("@tc", Convert.ToInt64(txtmusteri_tc.Text));
+            komut.Parameters.AddWithValue("@sifre", Convert.ToInt64(txtmusteri_sifre.Text));
+            komut.Parameters.AddWithValue("@eposta", txtmusteri_eposta.Text);
+            komut.Parameters.AddWithValue("@adres", txtmusteri_adres.Text);
+            komut.Parameters.AddWithValue("@telefon", Convert.ToInt64(txtmusteri_tel.Text));
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            MusteriGetir();
+            MessageBox.Show("Başarıyla Güncellendi");
+        }
+
+        private void müsteri_sil_button_Click_1(object sender, EventArgs e)
+        {
+            string sorgu = "DELETE FROM bank.musteri WHERE ID = @id";
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@id", Convert.ToInt32(txtmusteri_no.Text));
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            MusteriGetir();
+        }
+
+        private void temsilci_guncelle_button_Click(object sender, EventArgs e)
+        {
+            string sorgu = "UPDATE bank.musteri_temsilcisi SET AD=@ad,SOYAD=@soyad,SIFRE=@sifre,TELEFON=@telefon,TC=@tc,EPOSTA=@eposta,ADRES=@adres WHERE ID=@id";
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@id", Convert.ToInt32(temsilci_no.Text));
+            komut.Parameters.AddWithValue("@ad", temsilci_ad.Text);
+            komut.Parameters.AddWithValue("@soyad", temsilci_soyad.Text);
+            komut.Parameters.AddWithValue("@tc", Convert.ToInt64(temsilci_tc.Text));
+            komut.Parameters.AddWithValue("@sifre", Convert.ToInt64(temsilci_sifre.Text));
+            komut.Parameters.AddWithValue("@eposta", temsilci_eposta.Text);
+            komut.Parameters.AddWithValue("@adres", temsilci_adres.Text);
+            komut.Parameters.AddWithValue("@telefon", Convert.ToInt64(temsilci_tel.Text));
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            MessageBox.Show("Başarıyla Güncellendi");
+            TemsilciGetir();
+        }
+
+        private void temsilci_ekle_button_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                MySqlConnection baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+                string isim = doviz_isim.Text;
+                string Query = "insert into bank.musteri_temsilcisi(AD,SOYAD,SIFRE,TC,TELEFON,EPOSTA,ADRES)  values('" + temsilci_ad.Text + "','" + temsilci_soyad.Text + "','" + Convert.ToInt64(temsilci_sifre.Text) + "','" + Convert.ToInt64(temsilci_tc.Text) + "','" + Convert.ToInt64(temsilci_tel.Text) + "','" + temsilci_eposta.Text + "','" + temsilci_adres.Text + "');";
+
+                MySqlCommand MyCommand2 = new MySqlCommand(Query, baglanti);
+                MySqlDataReader MyReader2;
+                baglanti.Open();
+                MyReader2 = MyCommand2.ExecuteReader();
+                while (MyReader2.Read())
+                {
+                }
+                baglanti.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            TemsilciGetir();
+        }
+
+        private void temsilci_sil_button_Click(object sender, EventArgs e)
+        {
+            string sorgu = "DELETE FROM bank.musteri_temsilcisi WHERE ID = @id";
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@id", Convert.ToInt32(temsilci_no.Text));
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            TemsilciGetir();
+
+        }
+
+        void KullaniciGetir()
+        {
+
+            int kullanici_id = Convert.ToInt32(ID);
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT * FROM bank.mudur WHERE ID = " + kullanici_id + ";", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+
+                mudur_no.Text = oku["ID"].ToString();
+                mudur_ad.Text = oku["AD"].ToString();
+                mudur_soyad.Text = oku["SOYAD"].ToString();
+                mudur_tc.Text = oku["TC"].ToString();
+                mudur_tel.Text = oku["TELEFON"].ToString();
+                mudur_eposta.Text = oku["EPOSTA"].ToString();
+                mudur_adres.Text = oku["ADRES"].ToString();
+                mudur_sifre.Text = oku["SIFRE"].ToString();
+                
+
+            }
+            oku.Close();
+            baglanti.Close();
+
+        }
+
+        void TemsilciSayi()
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT COUNT(ID) AS temsilciSayisi FROM bank.musteri_temsilcisi;", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+               temsilci_sayisi.Text = oku["temsilciSayisi"].ToString();            
+            }
+            oku.Close();
+            baglanti.Close();
+        }
+
+        void MusteriSayi()
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT COUNT(ID) AS musteriSayisi FROM bank.musteri;", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+                musteri_sayisi.Text = oku["musteriSayisi"].ToString();
+            }
+            oku.Close();
+            baglanti.Close();
+        }
+
+        void ToplamPara()
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT * FROM bank.banka_para;", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+                banka_no.Text = oku["banka_id"].ToString();
+                toplam_para.Text = oku["BANKA_PARA"].ToString();
+            }
+            oku.Close();
+            baglanti.Close();
+        }
+
+        void MudurMaas()
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT * FROM bank.maas WHERE BANKA_ROL='mudur';", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+                mudur_maas.Text = oku["MAAS"].ToString();
+            }
+            oku.Close();
+            baglanti.Close();
+        }
+
+        void TemsilciMaas()
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT * FROM bank.maas WHERE BANKA_ROL='musteri_temsilci';", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+                temsilci_maas.Text = oku["MAAS"].ToString();
+            }
+            oku.Close();
+            baglanti.Close();
+        }
+
+        private void mudur_bilgi_button_Click_1(object sender, EventArgs e)
+        {
+            panel3.Height = mudur_bilgi_button.Height;
+            panel3.Top = mudur_bilgi_button.Top;
+            musteri_panel.Visible = false;
+            temsilci_panel.Visible = false;
+            kullanici_bilgi_panel.Visible = true;
+            banka_bilgi_panel.Visible = false;
+            para_birimleri_panel.Visible = false;
+            talep_panel.Visible = false;
+
+
+
+            KullaniciGetir();
+        }
+
+        private void label17_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        void faiz()
+        {
+
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT BANKA_FAIZ FROM bank.banka_para WHERE banka_id =1", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+                faiz_txt.Text = oku["BANKA_FAIZ"].ToString();
+
+            }
+            oku.Close();
+            baglanti.Close();
+        }
+        private void banka_bilgi_Click_1(object sender, EventArgs e)
+        {
+            panel3.Height = banka_bilgi.Height;
+            panel3.Top = banka_bilgi.Top;
+            musteri_panel.Visible = false;
+            temsilci_panel.Visible = false;
+            kullanici_bilgi_panel.Visible = false;
+            banka_bilgi_panel.Visible = true;
+            para_birimleri_panel.Visible = false;
+            talep_panel.Visible = false;
+
+
+            TemsilciMaas();
+            MudurMaas();
+            ToplamPara();
+            MusteriSayi();
+            TemsilciSayi();
+            faiz();
+        }
+
+        private void mudur_maas_guncelle_button_Click(object sender, EventArgs e)
+        {
+            string sorgu = "UPDATE bank.maas SET MAAS=@maas WHERE BANKA_ROL='mudur';";
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@maas", Convert.ToInt64(mudur_maas.Text));
+           
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            MessageBox.Show("Başarıyla Güncellendi");
+            MudurMaas();
+
+
+        }
+
+        private void temsilci_maas_guncelle_button_Click(object sender, EventArgs e)
+        {
+            string sorgu = "UPDATE bank.maas SET MAAS=@maas WHERE BANKA_ROL='musteri_temsilci';";
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@maas", Convert.ToInt64(temsilci_maas.Text));
+
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            MessageBox.Show("Başarıyla Güncellendi");
+            TemsilciMaas();
+        }
+
+        void DovizGetir()
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            da = new MySqlDataAdapter("SELECT * FROM bank.doviz", baglanti);
+            DataTable tablo = new DataTable();
+            da.Fill(tablo);
+            dataGridView3.DataSource = tablo;
+            baglanti.Close();
+
+        }
+
+        private void dataGridView3_CellEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            doviz_no.Text = dataGridView3.CurrentRow.Cells[0].Value.ToString();
+            doviz_isim.Text = dataGridView3.CurrentRow.Cells[1].Value.ToString();
+            doviz_alis.Text = dataGridView3.CurrentRow.Cells[2].Value.ToString();
+            doviz_satis.Text = dataGridView3.CurrentRow.Cells[3].Value.ToString();
+        }
+
+        private void para_birimi_Click(object sender, EventArgs e)
+        {
+            panel3.Height = para_birimi.Height;
+            panel3.Top = para_birimi.Top;
+            musteri_panel.Visible = false;
+            temsilci_panel.Visible = false;
+            kullanici_bilgi_panel.Visible = false;
+            banka_bilgi_panel.Visible = false;
+            para_birimleri_panel.Visible = true;
+            talep_panel.Visible = false;
+
+            DovizGetir();
+        }
+
+        private void doviz_guncelle_button_Click(object sender, EventArgs e)
+        {
+            string sorgu = "UPDATE bank.doviz SET DOVIZ_ISIM=@isim,DOVIZ_ALIS=@alis,DOVIZ_SATIS=@satis WHERE DOVIZ_ID=@id;";
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@id", Convert.ToInt32(doviz_no.Text));
+            komut.Parameters.AddWithValue("@isim",doviz_isim.Text);          
+            komut.Parameters.AddWithValue("@alis", Convert.ToDouble(doviz_alis.Text));
+            komut.Parameters.AddWithValue("@satis", Convert.ToDouble(doviz_satis.Text));
+
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            MessageBox.Show("Başarıyla Güncellendi");
+            DovizGetir();
+        }
+
+        private void doviz_ekle_button_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                MySqlConnection baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+                string isim = doviz_isim.Text;
+               
+                string sorgu = "insert into bank.doviz(DOVIZ_ISIM,DOVIZ_ALIS,DOVIZ_SATIS) values(@isim,@alis,@satis);";//values("  + isim + "," + Convert.ToDouble(doviz_alis.Text) + ","+ Convert.ToDouble(doviz_satis.Text) + ");"
+                komut = new MySqlCommand(sorgu, baglanti);
+
+                komut.Parameters.AddWithValue("@isim", isim);
+                komut.Parameters.AddWithValue("@alis", Convert.ToDouble(doviz_alis.Text));
+                komut.Parameters.AddWithValue("@satis", Convert.ToDouble(doviz_satis.Text));   
+                baglanti.Open();
+                komut.ExecuteNonQuery();
+                baglanti.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            DovizGetir();
+
+        }
+
+        private void doviz_sil_button_Click(object sender, EventArgs e)
+        {
+            string sorgu = "DELETE FROM bank.doviz WHERE DOVIZ_ID = @id";
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@id", Convert.ToInt32(doviz_no.Text));
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            MessageBox.Show("Başarıyla Silindi");
+            DovizGetir();
+
+        }
+
+        private void musteri_guncelle_Click(object sender, EventArgs e)
+        {
+            string sorgu = "UPDATE bank.musteri_temsilcisi SET AD=@ad,SOYAD=@soyad,SIFRE=@sifre,TELEFON=@telefon,TC=@tc,EPOSTA=@eposta,ADRES=@adres WHERE ID=@id";
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@id", Convert.ToInt32(temsilci_no.Text));
+            komut.Parameters.AddWithValue("@ad", temsilci_ad.Text);
+            komut.Parameters.AddWithValue("@soyad", temsilci_soyad.Text);
+            komut.Parameters.AddWithValue("@tc", Convert.ToInt64(temsilci_tc.Text));
+            komut.Parameters.AddWithValue("@sifre", Convert.ToInt64(temsilci_sifre.Text));
+            komut.Parameters.AddWithValue("@eposta", temsilci_eposta.Text);
+            komut.Parameters.AddWithValue("@adres", temsilci_adres.Text);
+            komut.Parameters.AddWithValue("@telefon", Convert.ToInt64(temsilci_tel.Text));
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            MessageBox.Show("Başarıyla Güncellendi");
+
+        }
+
+        private void mudur_guncelle_Click(object sender, EventArgs e)
+        {
+            string sorgu = "UPDATE bank.mudur SET AD=@ad,SOYAD=@soyad,SIFRE=@sifre,TC=@tc,TELEFON=@telefon,EPOSTA=@eposta,ADRES=@adres WHERE ID=@id";
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@id", Convert.ToInt32(mudur_no.Text));
+            komut.Parameters.AddWithValue("@ad", mudur_ad.Text);
+            komut.Parameters.AddWithValue("@soyad", mudur_soyad.Text);
+            komut.Parameters.AddWithValue("@tc", Convert.ToInt64(mudur_tc.Text));
+            komut.Parameters.AddWithValue("@sifre", Convert.ToInt64(mudur_sifre.Text));
+            komut.Parameters.AddWithValue("@eposta", mudur_eposta.Text);
+            komut.Parameters.AddWithValue("@adres", mudur_adres.Text);
+            komut.Parameters.AddWithValue("@telefon", Convert.ToInt64(mudur_tel.Text));
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            MessageBox.Show("Başarıyla Güncellendi");
+        }
+
+        private void guna2Button3_Click(object sender, EventArgs e)
+        {
+            string sorgu = "UPDATE bank.banka_para SET BANKA_FAIZ=@faiz WHERE banka_id=1;";
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            komut = new MySqlCommand(sorgu, baglanti);
+            komut.Parameters.AddWithValue("@faiz", Convert.ToDouble(faiz_txt.Text));
+
+            baglanti.Open();
+            komut.ExecuteNonQuery();
+            baglanti.Close();
+            MessageBox.Show("Başarıyla Güncellendi");
+        }
+
+        private void talepler_button_Click(object sender, EventArgs e)
+        {
+            panel3.Height = talepler_button.Height;
+            panel3.Top = talepler_button.Top;
+            musteri_panel.Visible = false;
+            temsilci_panel.Visible = false;
+            kullanici_bilgi_panel.Visible = false;
+            banka_bilgi_panel.Visible = false;
+            para_birimleri_panel.Visible = false;
+            talep_panel.Visible = true;
+            TalepGetir();
+        }
+
+        private void dataGridView4_CellEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            talep_no.Text = dataGridView4.CurrentRow.Cells[0].Value.ToString();
+            talep_tur.Text = dataGridView4.CurrentRow.Cells[1].Value.ToString();
+            talep_hesap_no.Text = dataGridView4.CurrentRow.Cells[3].Value.ToString();
+            talep_durum.Text = dataGridView4.CurrentRow.Cells[5].Value.ToString();
+        }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using MySql.Data.MySqlClient;
+
+
+namespace Prolab2_3
+{
+    public partial class Kayit : Form
+    {
+        MySqlConnection baglanti;
+        MySqlCommand komut;
+        MySqlDataAdapter da;
+        public Kayit()
+        {
+            InitializeComponent();
+        }
+
+    
+
+        private void back_button_Click(object sender, EventArgs e)
+        {
+            new Giris().Show();
+            this.Hide();
+        }
+        public string TemsilciID { get; set; }
+        public string ID { get; set; }
+
+     
+        void temsilci()
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT ID FROM bank.musteri_temsilcisi GROUP BY ID ORDER BY MIN(MUSTERI_SAYISI) LIMIT 1 ;", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+               TemsilciID  = oku["ID"].ToString();
+            }
+            oku.Close();
+            baglanti.Close();
+
+        }
+
+
+
+
+        private void onay_buton_Click(object sender, EventArgs e)
+        {
+            string isim = isim_kayit.Text; //textboxtaki değerleri string değişkenlere atadım
+            string soyad = soyad_kayit.Text;
+            string sifre = sifre_kayit.Text;
+            string sifre_tekrar = sifre_tekrar_kayit.Text;
+            string eposta = eposta_kayit.Text;
+            string adres = adres_kayit.Text;
+            string tc = tc_kayit.Text;
+            string tel = tel_kayit.Text;
+
+            if (isim == "" || soyad == "" || sifre == "" || sifre_tekrar == "" || eposta == "" || adres == "" || tc == "") //Eğer textboxlardan biri boşsa beni uyarsın ve işlem yapmasın
+            {
+                MessageBox.Show("Lütfen tüm alanları doldurun");
+                return;
+            }
+            else
+            {
+                if(sifre != sifre_tekrar)
+                {
+                    MessageBox.Show("Girdiğiniz şifre eşleşmiyor!");
+                    return;
+                }
+                else
+                {
+                    temsilci();
+                    int temsilci_id = Convert.ToInt32(TemsilciID);
+
+                    try
+                    {
+                        MySqlConnection baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+                        string Query = "insert into bank.musteri(AD,SOYAD,SIFRE,TELEFON,TC,ADRES,EPOSTA) values('" + isim + "','" + soyad + "','" + sifre + "','" + tel + "','" + tc + "','"+adres+ "','" + eposta + "');";
+                        
+                        MySqlCommand MyCommand2 = new MySqlCommand(Query, baglanti);
+                        MySqlDataReader MyReader2;
+                        baglanti.Open();
+                        MyReader2 = MyCommand2.ExecuteReader();    
+                        while (MyReader2.Read())
+                        {
+                        }
+                        baglanti.Close();
+                        Query = "insert into bank.doviz_hesap() values();";
+
+
+                        MyCommand2 = new MySqlCommand(Query, baglanti);
+
+                        baglanti.Open();
+                        MyReader2 = MyCommand2.ExecuteReader();
+                        while (MyReader2.Read())
+                        {
+                        }
+                        baglanti.Close();
+                        /*
+                          Query = "SELECT ID FROM bank.musteri WHERE AD=@isim,SOYAD=@soyad,SIFRE=@sifre,TELEFON=@telefon,TC=@tc,ADRES=@adre,EPOSTA=@eposta;";
+
+                         MyCommand2 = new MySqlCommand(Query, baglanti);
+                         MyCommand2.Parameters.AddWithValue("@ad", isim);
+                         MyCommand2.Parameters.AddWithValue("@soyad", soyad);
+                         MyCommand2.Parameters.AddWithValue("@sifre", sifre);
+                         MyCommand2.Parameters.AddWithValue("@telefon", tel);
+                         MyCommand2.Parameters.AddWithValue("@tc", tc);
+                         MyCommand2.Parameters.AddWithValue("@adres", adres);
+                         MyCommand2.Parameters.AddWithValue("@eposta", eposta);
+                         baglanti.Open();
+                         MyReader2 = MyCommand2.ExecuteReader();
+                         while (MyReader2.Read())
+                         {
+                             ID = MyReader2["ID"].ToString();
+                         }
+                         baglanti.Close();
+                         int id = Convert.ToInt32(ID);
+
+                         Query = "insert into bank.doviz_hesap(ID) values("+id+");";
+
+
+                         MyCommand2 = new MySqlCommand(Query, baglanti);
+
+                         baglanti.Open();
+                         MyReader2 = MyCommand2.ExecuteReader();
+                         while (MyReader2.Read())
+                         {
+                         }
+                         baglanti.Close();
+                         Query = "insert into bank.temsilci(TEMSILCI_ID,MUSTERI_ID) values("+ temsilci_id + ","+id+");";
+                         MyCommand2 = new MySqlCommand(Query, baglanti);
+
+
+                         baglanti.Open();
+                         MyReader2 = MyCommand2.ExecuteReader();
+                         while (MyReader2.Read())
+                         {
+                         }
+                         baglanti.Close();
+                        */
+                        /*
+                        string sorgu = "UPDATE bank.musteri_temsilcisi SET AD=@ad,SOYAD=@soyad,SIFRE=@sifre,TELEFON=@telefon,TC=@tc,ADRES=@adres,EPOSTA=@eposta WHERE ID=@id";
+                        baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+                        komut = new MySqlCommand(sorgu, baglanti);
+                        komut.Parameters.AddWithValue("@id", Convert.ToInt32(txtmusteri_no.Text));
+                        komut.Parameters.AddWithValue("@ad", txtmusteri_ad.Text);
+                        komut.Parameters.AddWithValue("@soyad", txtmusteri_soyad.Text);
+                        komut.Parameters.AddWithValue("@tc", Convert.ToInt64(txtmusteri_tc.Text));
+                        komut.Parameters.AddWithValue("@sifre", Convert.ToInt64(txtmusteri_sifre.Text));
+                        komut.Parameters.AddWithValue("@eposta", txtmusteri_eposta.Text);
+                        komut.Parameters.AddWithValue("@adres", txtmusteri_adres.Text);
+                        komut.Parameters.AddWithValue("@telefon", Convert.ToInt64(txtmusteri_tel.Text));
+                        baglanti.Open();
+                        komut.ExecuteNonQuery();
+                        baglanti.Close();
+                        */
+
+                        MessageBox.Show("Başarılı");
+
+                        this.Hide();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
+                }
+            }
+        }
+
+        private void Kayit_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using MySql.Data.MySqlClient;
+
+
+namespace Prolab2_3
+{
+    public partial class para_islem : Form
+    {
+        MySqlConnection baglanti;
+        MySqlCommand komut;
+        MySqlDataAdapter da;
+        public para_islem()
+        {
+            InitializeComponent();
+        }
+
+      
+        public para_islem(int value,int hesap_no)
+        {
+            InitializeComponent();
+            Value = value;
+            Hesap_no = hesap_no;
+            if(value==1)
+            {
+                ust.Text = "Yüklenecek Miktarı Giriniz";
+                alt.Visible = false;
+                txt_alt.Visible = false;
+            }
+            else if (value == 2)
+            {
+                ust.Text = "Çekilecek Miktarı Giriniz";
+                alt.Visible = false;
+                txt_alt.Visible = false;
+            }
+            else if (value == 3)
+            {
+                ust.Text = "Ödenecek Kredi Tutarını Giriniz";
+                alt.Visible = false;
+                txt_alt.Visible = false;
+            }
+            else if (value == 4)
+            {
+                ust.Text = "Havale Yapılacak Hesabı Giriniz";
+                alt.Text = "Yollanacak Miktarı Giriniz";
+                alt.Visible = true;
+                txt_alt.Visible = true;
+            }
+            else if (value == 5)
+            {
+                ust.Text = "Çekilecek Kredi Tutarını Giriniz";
+                alt.Visible = false;
+                txt_alt.Visible = false;
+            }         
+        }
+        public int Value { get; set; }
+        public int Hesap_no { get; set; }
+        public string Bakiye { get; set; }
+        public string Kredi { get; set; }
+
+
+        void bakiye()
+        {
+            
+
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT * FROM bank.hesap WHERE HESAP_NO = '" + Hesap_no + "'", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {  
+                Bakiye = oku["BAKIYE"].ToString();
+            }
+            oku.Close();
+            baglanti.Close();
+        }
+
+        void kredi()
+        {
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+            baglanti.Open();
+            komut = new MySqlCommand("SELECT * FROM bank.hesap WHERE HESAP_NO = '" + Hesap_no + "'", baglanti);
+            komut.ExecuteNonQuery();
+            MySqlDataReader oku;
+            oku = komut.ExecuteReader();
+            while (oku.Read())
+            {
+                Kredi = oku["KREDI"].ToString();
+            }
+            oku.Close();
+            baglanti.Close();
+
+        }
+
+        
+
+        private void miktar_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ust_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void onay_buton_Click(object sender, EventArgs e)
+        {
+            bakiye();
+            double _bakiye = Convert.ToDouble(Bakiye);
+            int girilen_miktar = Convert.ToInt32(txt_ust.Text);
+            baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+
+
+
+            if (Value == 1)
+            {
+
+                string sorgu = "UPDATE bank.hesap SET BAKIYE=@para WHERE HESAP_NO=@hesap_no";
+
+                komut = new MySqlCommand(sorgu, baglanti);
+                komut.Parameters.AddWithValue("@para", _bakiye+girilen_miktar);
+                komut.Parameters.AddWithValue("@hesap_no", Hesap_no);
+
+                baglanti.Open();
+                komut.ExecuteNonQuery();
+                baglanti.Close();
+
+            
+                MessageBox.Show("Para Yükleme İşleminiz"+"\n"+"Başarıyla Onaylandı.");
+                this.Close();
+
+
+
+            }
+            else if (Value == 2)
+            {
+               
+                if(girilen_miktar>_bakiye)
+                {
+                    MessageBox.Show("Girdiğiniz Miktar Bakiyenizden Fazladır");
+                }
+                else 
+                {
+                    string sorgu = "UPDATE bank.hesap SET BAKIYE=@para WHERE HESAP_NO=@hesap_no";
+
+                    komut = new MySqlCommand(sorgu, baglanti);
+                    komut.Parameters.AddWithValue("@para",_bakiye-girilen_miktar);
+                    komut.Parameters.AddWithValue("@hesap_no", Hesap_no);
+
+                    baglanti.Open();
+                    komut.ExecuteNonQuery();
+                    baglanti.Close();
+
+                    MessageBox.Show("Para Çekme İşleminiz" + "\n" + "Başarıyla Onaylandı.");
+                    this.Close();
+                }
+               
+            }
+            else if (Value == 3)
+            {
+                kredi();
+                double _kredi = Convert.ToDouble(Kredi);
+                if (girilen_miktar > _bakiye)
+                {
+                    MessageBox.Show("Bakiyenizde Yeterli Para Yoktur!");
+                }
+                else if (girilen_miktar > _kredi)
+                {
+                    MessageBox.Show("Girdiğiniz Miktar"+"\n"+"Kredi Borcunuzdan Fazla!");
+                }
+                else
+                {
+                    string sorgu = "UPDATE bank.hesap SET KREDI=@kredi,BAKIYE=@bakiye WHERE HESAP_NO=@hesap_no";
+
+                    komut = new MySqlCommand(sorgu, baglanti);
+                    komut.Parameters.AddWithValue("@kredi", _kredi - girilen_miktar);
+                    komut.Parameters.AddWithValue("@bakiye", _bakiye - girilen_miktar);
+                    komut.Parameters.AddWithValue("@hesap_no", Hesap_no);
+
+                    baglanti.Open();
+                    komut.ExecuteNonQuery();
+                    baglanti.Close();
+
+                    MessageBox.Show("Kredi Ödeme İşleminiz" + "\n" + "Başarıyla Onaylandı.");
+                    this.Close();
+                }
+            }
+            else if (Value == 4)
+            {
+
+                if(girilen_miktar > _bakiye)
+                {
+                    MessageBox.Show("Girdiğiniz Miktar Bakiyenizden Fazladır");
+                }
+                else
+                {
+                    try
+                    {
+                        int gonderilecek_hesap = Convert.ToInt32(txt_ust.Text);
+                        int islem_miktar = Convert.ToInt32(txt_alt.Text);
+
+
+
+
+                        MySqlConnection baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+
+                        string Query = "insert into bank.talepler(TALEP_TURU,ISLEM_MIKTARI,GONDEREN_HESAP_NO,ALAN_HESAP_NO,TALEP_DURUM) values('" + "havale" + "','" + islem_miktar + "','" + Hesap_no + "','" + gonderilecek_hesap + "','" + "beklemede" + "');";//(TALEP_TURU,GONDEREN_HESAP_NO,GBAKIYE,ALAN_HESAP_NO,ABAKIYE,TALEP_DURUM)
+
+                        MySqlCommand MyCommand2 = new MySqlCommand(Query, baglanti);
+                        MySqlDataReader MyReader2;
+                        baglanti.Open();
+                        MyReader2 = MyCommand2.ExecuteReader();
+
+                        while (MyReader2.Read())
+                        {
+                        }
+                        baglanti.Close();
+                        MessageBox.Show("Havale Talebiniz Gönderildi.");
+                        this.Close();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
+                }
+
+               
+            }
+            else if(Value == 5)
+            {
+                int kredi=Convert.ToInt32(txt_ust.Text);
+                try
+                {
+                    MySqlConnection baglanti = new MySqlConnection("Server=localhost; Database=bank; Uid=root; Pwd=20012001");
+
+                    string Query = "insert into bank.talepler(TALEP_TURU,ISLEM_MIKTARI,GONDEREN_HESAP_NO,TALEP_DURUM) values('" + "kredi basvurusu" + "','" + kredi + "','" + Hesap_no + "','" + "beklemede" + "');";//(TALEP_TURU,GONDEREN_HESAP_NO,GBAKIYE,ALAN_HESAP_NO,ABAKIYE,TALEP_DURUM)
+
+                    MySqlCommand MyCommand2 = new MySqlCommand(Query, baglanti);
+                    MySqlDataReader MyReader2;
+                    baglanti.Open();
+                    MyReader2 = MyCommand2.ExecuteReader();
+
+                    while (MyReader2.Read())
+                    {
+                    }
+                    baglanti.Close();
+                    MessageBox.Show("Kredi Talebiniz Gönderildi.");
+                    this.Close();
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+            
+        }
+
+        private void para_islem_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
